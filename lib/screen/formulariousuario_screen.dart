@@ -8,15 +8,38 @@ class FormularioScreen extends StatefulWidget {
 }
 
 class _FormularioScreenState extends State<FormularioScreen> {
-  String? selectedEnfermedad;
-  String? selectedTipoSangre;
-
+  // Controladores para los campos de texto
   TextEditingController sintomasController = TextEditingController();
   TextEditingController tratamientoController = TextEditingController();
   TextEditingController medicacionController = TextEditingController();
+  
+  // Lista de enfermedades comunes
+  final List<String> enfermedades = [
+    'Diabetes', 'Hipertensión', 'Cáncer', 'Enfermedad de corazón', 'Asma', 
+    'Alergias', 'Artritis', 'Enfermedad renal', 'Migrañas', 'Enfermedad pulmonar',
+    'Osteoporosis', 'Depresión', 'Enfermedad de la tiroides', 'Gastritis', 'Enfermedad hepática',
+    'VIH/SIDA', 'Alzheimer', 'Parkinson', 'Anemia', 'Epilepsia', 'Otro'
+  ];
 
-  final List<String> enfermedades = ['Enfermedad 1', 'Enfermedad 2', 'Enfermedad 3'];
+  // Lista de tipos de sangre
   final List<String> tiposSangre = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+
+  // Lista para almacenar enfermedades seleccionadas y su campo adicional
+  List<Map<String, dynamic>> enfermedadesSeleccionadas = [];
+
+  // Función para agregar una nueva enfermedad
+  void _addEnfermedad() {
+    setState(() {
+      enfermedadesSeleccionadas.add({'enfermedad': null, 'controladorOtro': TextEditingController()});
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Añadir la primera enfermedad por defecto
+    _addEnfermedad();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,25 +52,58 @@ class _FormularioScreenState extends State<FormularioScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            DropdownButtonFormField<String>(
-              value: selectedEnfermedad,
-              items: enfermedades.map((String enfermedad) {
-                return DropdownMenuItem<String>(
-                  value: enfermedad,
-                  child: Text(enfermedad),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  selectedEnfermedad = newValue;
-                });
-              },
-              decoration: const InputDecoration(
-                labelText: 'Enfermedad que padece',
-                border: OutlineInputBorder(),
+            ...enfermedadesSeleccionadas.asMap().entries.map((entry) {
+              int index = entry.key;
+              Map<String, dynamic> enfermedadData = entry.value;
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  DropdownButtonFormField<String>(
+                    value: enfermedadData['enfermedad'],
+                    items: enfermedades.map((String enfermedad) {
+                      return DropdownMenuItem<String>(
+                        value: enfermedad,
+                        child: Text(enfermedad),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        enfermedadesSeleccionadas[index]['enfermedad'] = newValue;
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Enfermedad que padece',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  if (enfermedadData['enfermedad'] == 'Otro')
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      child: TextField(
+                        controller: enfermedadData['controladorOtro'],
+                        decoration: const InputDecoration(
+                          labelText: 'Especifique otra enfermedad',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 10),
+                ],
+              );
+            }).toList(),
+            GestureDetector(
+              onTap: _addEnfermedad,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.add, color: Colors.blue),
+                  const SizedBox(width: 4),
+                  const Text('Agregar otra enfermedad', style: TextStyle(color: Colors.blue)),
+                ],
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             TextField(
               controller: sintomasController,
               decoration: const InputDecoration(
@@ -57,18 +113,14 @@ class _FormularioScreenState extends State<FormularioScreen> {
             ),
             const SizedBox(height: 10),
             DropdownButtonFormField<String>(
-              value: selectedTipoSangre,
+              value: null,
               items: tiposSangre.map((String tipo) {
                 return DropdownMenuItem<String>(
                   value: tipo,
                   child: Text(tipo),
                 );
               }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  selectedTipoSangre = newValue;
-                });
-              },
+              onChanged: (String? newValue) {},
               decoration: const InputDecoration(
                 labelText: 'Tipo de sangre',
                 border: OutlineInputBorder(),
