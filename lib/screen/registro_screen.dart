@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:myapp/screen/formulariousuario_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   static const name = 'RegisterScreen';
@@ -22,7 +20,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String? selectedCountryCode;
 
   final List<String> genders = ['Masculino', 'Femenino', 'No binario', 'Otro'];
-  final List<String> countryCodes = ['+1', '+44', '+91', '+34', '+54','+598','+56','+57','+51']; // Puedes agregar más códigos de país aquí
+  final List<String> countryCodes = ['+1', '+44', '+91', '+34']; // Puedes agregar más códigos de país aquí
 
   String formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
@@ -167,7 +165,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-              context.goNamed(FormularioScreen.name);
+                // Lógica para el botón "Ir a formulario"
               },
               child: const Text('Ir a formulario'),
             ),

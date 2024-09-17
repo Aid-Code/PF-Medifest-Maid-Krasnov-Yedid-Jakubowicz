@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myapp/screen/eligerol_screen.dart';
 import 'package:myapp/screen/home_screen.dart';
+
+// Modelo para el usuario
+class User {
+  final String username;
+  final String password;
+
+  User({required this.username, required this.password});
+}
 
 // ignore: must_be_immutable
 class LoginScreen extends StatelessWidget {
@@ -11,8 +18,13 @@ class LoginScreen extends StatelessWidget {
 
   TextEditingController userController = TextEditingController();
   TextEditingController passController = TextEditingController();
-  List<String> users = ['Aiden', 'Ale', 'Marcos'];
-  List<String> passwords = ['123', 'soyAle', 'miContraseña123'];
+
+  // Lista de usuarios usando la clase User
+  List<User> users = [
+    User(username: 'Aiden', password: '123'),
+    User(username: 'Ale', password: 'soyAle'),
+    User(username: 'Marcos', password: 'miContraseña123')
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -62,45 +74,42 @@ class LoginScreen extends StatelessWidget {
                 String inputUser = userController.text;
                 String inputPass = passController.text;
 
-                if (users.contains(inputUser) &&
-                    passwords.contains(inputPass)) {
-                  context.pushNamed(HomeScreen.name,
-                      extra: userController.text);
-                } else if (inputUser.isEmpty) {
+                bool userFound = users.any((user) =>
+                    user.username == inputUser && user.password == inputPass);
+
+                if (userFound) {
+                  context.pushNamed(HomeScreen.name, extra: inputUser);
+                } else if (inputUser.isEmpty || inputPass.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(errorMessage);
-                } else if (inputPass.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(errorMessage);
-                } else if (users.contains(inputUser) == false ||
-                    passwords.contains(inputPass) == false) {
+                } else {
                   ScaffoldMessenger.of(context).showSnackBar(errorMessage);
                 }
               },
               child: const Text(
                 'Login',
               )),
-         const SizedBox(
-              height: 20,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('¿Todavía no tienes cuenta?'),
-                const SizedBox(width: 5),
-                GestureDetector(
-                  onTap: () {
-                    context.pushNamed(EligeRol.name);
-                  },
-                  child: const Text(
-                    'Crear cuenta',
-                    style: TextStyle(
-                      color: Colors.blue,
-                      decoration: TextDecoration.underline,
-                    ),
+          const SizedBox(
+            height: 20,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('¿Todavía no tienes cuenta?'),
+              const SizedBox(width: 5),
+              GestureDetector(
+                onTap: () {
+                  context.pushNamed(EligeRol.name);
+                },
+                child: const Text(
+                  'Crear cuenta',
+                  style: TextStyle(
+                    color: Colors.blue,
+                    decoration: TextDecoration.underline,
                   ),
                 ),
-              ],
-            ),
-              
+              ),
+            ],
+          ),
         ],
       ),
     ));

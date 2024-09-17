@@ -20,7 +20,7 @@ class _RegisterScreenState extends State<RegisterDocScreen> {
   String? selectedCountryCode;
 
   final List<String> genders = ['Masculino', 'Femenino', 'No binario', 'Otro'];
-  final List<String> countryCodes = ['+1', '+44', '+91', '+34','+54','+598','+56','+51','+57']; // Puedes agregar más códigos de país aquí
+  final List<String> countryCodes = ['+1', '+44', '+91', '+34']; // Puedes agregar más códigos de país aquí
 
   String formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';

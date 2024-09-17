@@ -6,7 +6,6 @@ import 'package:myapp/screen/home_screen.dart';
 import 'package:myapp/screen/login_screen.dart';
 import 'package:myapp/screen/registro_screen.dart';
 import 'package:myapp/screen/registrodoctor_screen.dart';
-import 'package:myapp/screen/formulariousuario_screen.dart';
 
 final appRouter = GoRouter(
   routes: [
@@ -34,11 +33,6 @@ final appRouter = GoRouter(
       name: RegisterDocScreen.name,
       path: '/registerDoc',
       builder: (context, state) => RegisterDocScreen(),
-    ),
-    GoRoute(
-      name: FormularioScreen.name,
-      path: '/formulario',
-      builder: (context, state) => FormularioScreen(),
     ),
   ],
 );
