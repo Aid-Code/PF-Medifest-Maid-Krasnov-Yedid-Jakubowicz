@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/entities/user.dart'; // Asegúrate de importar la clase User
 
 class RegisterScreen extends StatefulWidget {
   static const name = 'RegisterScreen';
@@ -8,6 +9,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  TextEditingController usernameController = TextEditingController();
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
@@ -15,12 +17,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
   TextEditingController birthDateController = TextEditingController();
-  
+
   String? selectedGender;
   String? selectedCountryCode;
 
   final List<String> genders = ['Masculino', 'Femenino', 'No binario', 'Otro'];
-  final List<String> countryCodes = ['+1', '+44', '+91', '+34']; // Puedes agregar más códigos de país aquí
+  final List<String> countryCodes = ['+1', '+44', '+91', '+34'];
 
   String formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
@@ -43,6 +45,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
+            TextField(
+              controller: usernameController,
+              decoration: const InputDecoration(
+                labelText: 'Nombre de usuario',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 10),
             TextField(
               controller: firstNameController,
               decoration: const InputDecoration(
@@ -165,9 +175,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Lógica para el botón "Ir a formulario"
+                // Lógica para crear el nuevo usuario
+                if (passwordController.text == confirmPasswordController.text) {
+                  User newUser = User(
+                    username: usernameController.text,
+                    password: passwordController.text,
+                    firstName: firstNameController.text,
+                    lastName: lastNameController.text,
+                    email: emailController.text,
+                    phone: phoneController.text,
+                    gender: selectedGender ?? 'No especificado',
+                    birthDate: DateTime.tryParse(birthDateController.text.split('/').reversed.join('-')),
+                  );
+
+                  // Aquí puedes agregar lógica para almacenar el nuevo usuario
+                  // y navegar a otra pantalla si es necesario
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Las contraseñas no coinciden')),
+                  );
+                }
               },
-              child: const Text('Ir a formulario'),
+              child: const Text('Crear cuenta'),
             ),
           ],
         ),

@@ -1,11 +1,10 @@
-
-
 import 'package:go_router/go_router.dart';
 import 'package:myapp/screen/eligerol_screen.dart';
 import 'package:myapp/screen/home_screen.dart';
 import 'package:myapp/screen/login_screen.dart';
 import 'package:myapp/screen/registro_screen.dart';
 import 'package:myapp/screen/registrodoctor_screen.dart';
+import 'package:myapp/entities/user.dart'; // Importa la clase User
 
 final appRouter = GoRouter(
   routes: [
@@ -17,7 +16,10 @@ final appRouter = GoRouter(
     GoRoute(
       name: HomeScreen.name,
       path: '/home',
-      builder: (context, state) => HomeScreen(userName: state.extra as String),
+      builder: (context, state) {
+        final user = state.extra as User; // Pasamos el objeto User
+        return HomeScreen(user: user);
+      },
     ),
     GoRoute(
       name: EligeRol.name,

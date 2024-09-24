@@ -2,14 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myapp/screen/eligerol_screen.dart';
 import 'package:myapp/screen/home_screen.dart';
-
-// Modelo para el usuario
-class User {
-  final String username;
-  final String password;
-
-  User({required this.username, required this.password});
-}
+import 'package:myapp/entities/user.dart';
 
 // ignore: must_be_immutable
 class LoginScreen extends StatelessWidget {
@@ -74,13 +67,17 @@ class LoginScreen extends StatelessWidget {
                 String inputUser = userController.text;
                 String inputPass = passController.text;
 
-                bool userFound = users.any((user) =>
-                    user.username == inputUser && user.password == inputPass);
+                User? matchedUser;
+                try {
+                  matchedUser = users.firstWhere((user) =>
+                      user.username == inputUser && user.password == inputPass);
+                } catch (e) {
+                  matchedUser = null; // Si no se encuentra un usuario, asigna null
+                }
 
-                if (userFound) {
-                  context.pushNamed(HomeScreen.name, extra: inputUser);
-                } else if (inputUser.isEmpty || inputPass.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(errorMessage);
+                if (matchedUser != null) {
+                  // Pasamos el objeto User a la siguiente pantalla
+                  context.pushNamed(HomeScreen.name, extra: matchedUser);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(errorMessage);
                 }
