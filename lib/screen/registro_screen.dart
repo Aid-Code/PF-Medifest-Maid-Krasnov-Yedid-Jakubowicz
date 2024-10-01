@@ -30,6 +30,58 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 
+  void _registerUser() {
+    // Validación de campos
+    if (usernameController.text.isEmpty ||
+        firstNameController.text.isEmpty ||
+        lastNameController.text.isEmpty ||
+        emailController.text.isEmpty ||
+        phoneController.text.isEmpty ||
+        passwordController.text.isEmpty ||
+        confirmPasswordController.text.isEmpty ||
+        birthDateController.text.isEmpty ||
+        selectedGender == null ||
+        selectedCountryCode == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, complete todos los campos')),
+      );
+      return;
+    }
+
+    if (passwordController.text != confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Las contraseñas no coinciden')),
+      );
+      return;
+    }
+
+    DateTime? birthDate = DateTime.tryParse(
+      birthDateController.text.split('/').reversed.join('-'),
+    );
+
+    if (birthDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Fecha de nacimiento no válida')),
+      );
+      return;
+    }
+
+    User newUser = User(
+      username: usernameController.text,
+      password: passwordController.text,
+      firstName: firstNameController.text,
+      lastName: lastNameController.text,
+      email: emailController.text,
+      phone: '$selectedCountryCode${phoneController.text}',
+      gender: selectedGender!,
+      birthDate: birthDate,
+    );
+
+    // Navegar a otra pantalla después del registro
+    context.goNamed(FormularioScreen.name);
+    // Aquí puedes agregar lógica para almacenar el nuevo usuario en la base de datos.
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -176,28 +228,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                // Lógica para crear el nuevo usuario
-                if (passwordController.text == confirmPasswordController.text) {
-                  User newUser = User(
-                    username: usernameController.text,
-                    password: passwordController.text,
-                    firstName: firstNameController.text,
-                    lastName: lastNameController.text,
-                    email: emailController.text,
-                    phone: phoneController.text,
-                    gender: selectedGender ?? 'No especificado',
-                    birthDate: DateTime.tryParse(birthDateController.text.split('/').reversed.join('-')),
-                  );
-                  context.goNamed(FormularioScreen.name);
-                  // Aquí puedes agregar lógica para almacenar el nuevo usuario
-                  // y navegar a otra pantalla si es necesario
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Las contraseñas no coinciden')),
-                  );
-                }
-              },
+              onPressed: _registerUser,
               child: const Text('Crear cuenta'),
             ),
           ],

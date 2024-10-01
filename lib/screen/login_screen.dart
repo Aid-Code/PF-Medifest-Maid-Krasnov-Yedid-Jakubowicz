@@ -1,114 +1,113 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:myapp/screen/eligerol_screen.dart';
-import 'package:myapp/screen/home_screen.dart';
 import 'package:myapp/entities/user.dart';
+import 'package:myapp/screen/home_screen.dart'; // Asegúrate de que la clase User esté correctamente importada
 
-// ignore: must_be_immutable
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   static const name = 'LoginScreen';
-  LoginScreen({super.key});
 
-  TextEditingController userController = TextEditingController();
-  TextEditingController passController = TextEditingController();
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
 
-  // Lista de usuarios usando la clase User
-  List<User> users = [
-    User(username: 'Aiden', password: '123'),
-    User(username: 'Ale', password: 'soyAle'),
-    User(username: 'Marcos', password: 'miContraseña123')
+class _LoginScreenState extends State<LoginScreen> {
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
+  // Simulamos una lista de usuarios registrados para validar el login
+  final List<User> registeredUsers = [
+    User(
+      username: 'usuario1',
+      password: 'contraseña1',
+      firstName: 'Juan',
+      lastName: 'Pérez',
+      email: 'juan@example.com',
+      phone: '+34123456789',
+      gender: 'Masculino',
+      birthDate: DateTime(1990, 5, 23),
+    ),
+    // Otros usuarios de ejemplo...
   ];
+
+  // Función para validar el login
+  void _loginUser() {
+    String enteredUsername = usernameController.text;
+    String enteredPassword = passwordController.text;
+
+    // Modificación: se usa firstWhere con orElse para manejar el caso de usuario no encontrado
+    User? foundUser;
+    try {
+      foundUser = registeredUsers.firstWhere(
+        (user) => user.username == enteredUsername && user.password == enteredPassword,
+      );
+    } catch (e) {
+      foundUser = null; // Usuario no encontrado
+    }
+
+    if (foundUser != null) {
+      // Login exitoso
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('¡Bienvenido, ${foundUser.firstName}!')),
+      );
+      // Redirigir a otra pantalla (Formulario o Home Screen)
+      context.goNamed(HomeScreen.name); // Asegúrate de tener esta ruta configurada en GoRouter
+    } else {
+      // Mostrar error si las credenciales no son correctas
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nombre de usuario o contraseña incorrectos')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(
-            'MediFest',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(
-            height: 40,
-          ),
-          TextField(
-            controller: userController,
-            decoration: const InputDecoration(
-                hintText: 'Username',
-                prefixIcon: Icon(Icons.person),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(30)))),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          TextField(
-            controller: passController,
-            decoration: const InputDecoration(
-                hintText: 'Password',
-                prefixIcon: Icon(Icons.lock),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(30)))),
-            obscureText: true,
-          ),
-          const SizedBox(
-            height: 50,
-          ),
-          ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  fixedSize: const Size(300, 50),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30))),
-              onPressed: () {
-                SnackBar errorMessage = const SnackBar(
-                    content: Text('Usuario o contraseña incorrectos'));
-                String inputUser = userController.text;
-                String inputPass = passController.text;
-
-                User? matchedUser;
-                try {
-                  matchedUser = users.firstWhere((user) =>
-                      user.username == inputUser && user.password == inputPass);
-                } catch (e) {
-                  matchedUser = null; // Si no se encuentra un usuario, asigna null
-                }
-
-                if (matchedUser != null) {
-                  // Pasamos el objeto User a la siguiente pantalla
-                  context.pushNamed(HomeScreen.name, extra: matchedUser);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(errorMessage);
-                }
-              },
-              child: const Text(
-                'Login',
-              )),
-          const SizedBox(
-            height: 20,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('¿Todavía no tienes cuenta?'),
-              const SizedBox(width: 5),
-              GestureDetector(
-                onTap: () {
-                  context.pushNamed(EligeRol.name);
-                },
-                child: const Text(
-                  'Crear cuenta',
-                  style: TextStyle(
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+      appBar: AppBar(
+        title: const Text('Iniciar sesión'),
       ),
-    ));
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Iniciar sesión',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: usernameController,
+              decoration: const InputDecoration(
+                labelText: 'Nombre de usuario',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: passwordController,
+              decoration: const InputDecoration(
+                labelText: 'Contraseña',
+                border: OutlineInputBorder(),
+              ),
+              obscureText: true,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _loginUser,
+              child: const Text('Iniciar sesión'),
+            ),
+            const SizedBox(height: 10),
+            TextButton(
+              onPressed: () {
+                // Navegar a la pantalla de registro si no tiene una cuenta
+                context.goNamed('RegisterScreen'); // Asegúrate de tener esta ruta configurada en GoRouter
+              },
+              child: const Text('¿No tienes una cuenta? Regístrate aquí'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
