@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:myapp/screen/eligerol_screen.dart';
+import 'package:myapp/screen/formulariousuario_screen.dart';
 import 'package:myapp/screen/home_screen.dart';
 import 'package:myapp/screen/login_screen.dart';
 import 'package:myapp/screen/registro_screen.dart';
@@ -30,6 +31,11 @@ final appRouter = GoRouter(
       name: RegisterScreen.name,
       path: '/register',
       builder: (context, state) => RegisterScreen(),
+    ),
+    GoRoute(
+      name: FormularioScreen.name,
+      path: '/formulariousuario',
+      builder: (context, state) => FormularioScreen(),
     ),
     GoRoute(
       name: RegisterDocScreen.name,

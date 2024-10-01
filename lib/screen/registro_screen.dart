@@ -1,5 +1,7 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/entities/user.dart'; // Asegúrate de importar la clase User
+import 'package:myapp/entities/user.dart';
+import 'package:myapp/screen/formulariousuario_screen.dart'; // Asegúrate de importar la clase User
 
 class RegisterScreen extends StatefulWidget {
   static const name = 'RegisterScreen';
@@ -22,7 +24,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String? selectedCountryCode;
 
   final List<String> genders = ['Masculino', 'Femenino', 'No binario', 'Otro'];
-  final List<String> countryCodes = ['+1', '+44', '+91', '+34'];
+  final List<String> countryCodes = ['+1', '+44', '+91', '+34', '+54'];
 
   String formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
@@ -187,7 +189,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     gender: selectedGender ?? 'No especificado',
                     birthDate: DateTime.tryParse(birthDateController.text.split('/').reversed.join('-')),
                   );
-
+                  context.goNamed(FormularioScreen.name);
                   // Aquí puedes agregar lógica para almacenar el nuevo usuario
                   // y navegar a otra pantalla si es necesario
                 } else {

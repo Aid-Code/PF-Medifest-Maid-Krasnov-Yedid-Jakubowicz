@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/entities/fichamedica.dart';
+import 'package:go_router/go_router.dart';
+import 'package:myapp/screen/login_screen.dart';
 
 class FormularioScreen extends StatefulWidget {
   static const name = 'FormularioScreen';
@@ -23,10 +26,10 @@ class _FormularioScreenState extends State<FormularioScreen> {
 
   // Lista de tipos de sangre
   final List<String> tiposSangre = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
-
-  // Lista para almacenar enfermedades seleccionadas y su campo adicional
-  List<Map<String, dynamic>> enfermedadesSeleccionadas = [];
-
+  
+  String? selectedTipoSangre; // Variable para almacenar el tipo de sangre seleccionado
+  List<Map<String, dynamic>> enfermedadesSeleccionadas = []; // Lista para almacenar las enfermedades seleccionadas
+  
   // Función para agregar una nueva enfermedad
   void _addEnfermedad() {
     setState(() {
@@ -37,8 +40,7 @@ class _FormularioScreenState extends State<FormularioScreen> {
   @override
   void initState() {
     super.initState();
-    // Añadir la primera enfermedad por defecto
-    _addEnfermedad();
+    _addEnfermedad(); // Añadir la primera enfermedad por defecto
   }
 
   @override
@@ -52,6 +54,7 @@ class _FormularioScreenState extends State<FormularioScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Lista dinámica de enfermedades seleccionadas
             ...enfermedadesSeleccionadas.asMap().entries.map((entry) {
               int index = entry.key;
               Map<String, dynamic> enfermedadData = entry.value;
@@ -92,18 +95,23 @@ class _FormularioScreenState extends State<FormularioScreen> {
                 ],
               );
             }).toList(),
+            
+            // Botón para agregar otra enfermedad
             GestureDetector(
               onTap: _addEnfermedad,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.add, color: Colors.blue),
-                  const SizedBox(width: 4),
-                  const Text('Agregar otra enfermedad', style: TextStyle(color: Colors.blue)),
+                children: const [
+                  Icon(Icons.add, color: Colors.blue),
+                  SizedBox(width: 4),
+                  Text('Agregar otra enfermedad', style: TextStyle(color: Colors.blue)),
                 ],
               ),
             ),
+            
             const SizedBox(height: 20),
+            
+            // Campo para los síntomas
             TextField(
               controller: sintomasController,
               decoration: const InputDecoration(
@@ -111,22 +119,32 @@ class _FormularioScreenState extends State<FormularioScreen> {
                 border: OutlineInputBorder(),
               ),
             ),
+            
             const SizedBox(height: 10),
+            
+            // Campo para seleccionar el tipo de sangre
             DropdownButtonFormField<String>(
-              value: null,
+              value: selectedTipoSangre,
               items: tiposSangre.map((String tipo) {
                 return DropdownMenuItem<String>(
                   value: tipo,
                   child: Text(tipo),
                 );
               }).toList(),
-              onChanged: (String? newValue) {},
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedTipoSangre = newValue;
+                });
+              },
               decoration: const InputDecoration(
                 labelText: 'Tipo de sangre',
                 border: OutlineInputBorder(),
               ),
             ),
+            
             const SizedBox(height: 10),
+            
+            // Campo para el tratamiento
             TextField(
               controller: tratamientoController,
               decoration: const InputDecoration(
@@ -134,7 +152,10 @@ class _FormularioScreenState extends State<FormularioScreen> {
                 border: OutlineInputBorder(),
               ),
             ),
+            
             const SizedBox(height: 10),
+            
+            // Campo para la medicación
             TextField(
               controller: medicacionController,
               decoration: const InputDecoration(
@@ -142,11 +163,36 @@ class _FormularioScreenState extends State<FormularioScreen> {
                 border: OutlineInputBorder(),
               ),
             ),
+            
             const SizedBox(height: 20),
+            
+            // Botón para enviar el formulario
             ElevatedButton(
               onPressed: () {
-                // Lógica para manejar el envío del formulario
+                // Validar que todos los campos requeridos estén completos
+                if (sintomasController.text.isEmpty || tratamientoController.text.isEmpty ||
+                    medicacionController.text.isEmpty || selectedTipoSangre == null || 
+                    enfermedadesSeleccionadas.any((element) => element['enfermedad'] == null)) {
+                  
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Por favor, completa todos los campos')),
+                  );
+                } else {
+                  // Crear la ficha médica
+                  Fichamedica ficha = Fichamedica(
+                    sintomas: sintomasController.text,
+                    tratamiento: tratamientoController.text,
+                    medicacion: medicacionController.text,
+                    tiposSangre: selectedTipoSangre!,
+                    enfermedadesSeleccionadas: enfermedadesSeleccionadas
+                        .map((e) => e['enfermedad'] == 'Otro' ? e['controladorOtro'].text : e['enfermedad'])
+                        .join(', '),
+                  );
+                  context.goNamed(LoginScreen.name);
+                  // Aquí puedes implementar la lógica para guardar en la base de datos o continuar a otra pantalla
+                }
               },
+              
               child: const Text('Enviar'),
             ),
           ],
