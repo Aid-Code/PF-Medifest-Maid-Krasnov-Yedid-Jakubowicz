@@ -18,7 +18,7 @@ final appRouter = GoRouter(
       name: HomeScreen.name,
       path: '/home',
       builder: (context, state) {
-        final user = state.extra as User; // Pasamos el objeto User
+        final user = state.extra as User?; // Pasamos el objeto User
         return HomeScreen(user: user);
       },
     ),

@@ -1,7 +1,8 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/entities/user.dart';
-import 'package:myapp/screen/formulariousuario_screen.dart'; // Asegúrate de importar la clase User
+import 'package:myapp/screen/formulariousuario_screen.dart'; // Asegúrate de importar la clase User4
+import 'package:myapp/entities/globals.dart';
 
 class RegisterScreen extends StatefulWidget {
   static const name = 'RegisterScreen';
@@ -77,9 +78,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
       birthDate: birthDate,
     );
 
-    // Navegar a otra pantalla después del registro
+    // Almacenar el nuevo usuario
+    registeredUsers.add(newUser);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Usuario registrado con éxito')),
+    );
+
+    // Redirigir a otra pantalla
     context.goNamed(FormularioScreen.name);
-    // Aquí puedes agregar lógica para almacenar el nuevo usuario en la base de datos.
   }
 
   @override

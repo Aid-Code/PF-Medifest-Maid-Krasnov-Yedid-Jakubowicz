@@ -5,7 +5,7 @@ import 'package:myapp/entities/user.dart';
 class HomeScreen extends StatelessWidget {
   static const name = 'HomeScreen';
 
-  final User user; // Recibe un objeto User
+  final User? user; // Recibe un objeto User
 
   HomeScreen({super.key, required this.user});
 
@@ -20,7 +20,7 @@ class HomeScreen extends StatelessWidget {
       ),
       body: Center(
         child: Text(
-          '¡Welcome ${user.username}!', // Usa el atributo username de User
+          '¡Welcome ${user!.username}!', // Usa el atributo username de User
           style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
         ),
       ),
