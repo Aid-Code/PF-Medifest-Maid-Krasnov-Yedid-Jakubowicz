@@ -1,242 +1,93 @@
-import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/entities/user.dart';
-import 'package:myapp/screen/formulariousuario_screen.dart'; // Asegúrate de importar la clase User4
-import 'package:myapp/entities/globals.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterScreen extends StatefulWidget {
-  static const name = 'RegisterScreen';
-
   @override
+  static const name = 'RegisterScreen';
   _RegisterScreenState createState() => _RegisterScreenState();
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  TextEditingController usernameController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
+  TextEditingController genderController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController confirmPasswordController = TextEditingController();
-  TextEditingController birthDateController = TextEditingController();
+  DateTime birthDate = DateTime.now();
 
-  String? selectedGender;
-  String? selectedCountryCode;
-
-  final List<String> genders = ['Masculino', 'Femenino', 'No binario', 'Otro'];
-  final List<String> countryCodes = ['+1', '+44', '+91', '+34', '+54'];
-
-  String formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
-  }
-
-  void _registerUser() {
-    // Validación de campos
-    if (usernameController.text.isEmpty ||
-        firstNameController.text.isEmpty ||
-        lastNameController.text.isEmpty ||
-        emailController.text.isEmpty ||
-        phoneController.text.isEmpty ||
-        passwordController.text.isEmpty ||
-        confirmPasswordController.text.isEmpty ||
-        birthDateController.text.isEmpty ||
-        selectedGender == null ||
-        selectedCountryCode == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, complete todos los campos')),
+  // Función para registrar un nuevo usuario
+  Future<void> _registerUser() async {
+    try {
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: emailController.text,
+        password: passwordController.text,
       );
-      return;
-    }
 
-    if (passwordController.text != confirmPasswordController.text) {
+      // Almacenar la información adicional en Firestore
+      await _firestore.collection('users').doc(userCredential.user!.uid).set({
+        'firstName': firstNameController.text,
+        'lastName': lastNameController.text,
+        'email': emailController.text,
+        'phone': phoneController.text,
+        'gender': genderController.text,
+        'birthDate': birthDate,
+      });
+
+      // Mostrar mensaje de éxito y redirigir a la pantalla de inicio
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Las contraseñas no coinciden')),
+        const SnackBar(content: Text('Registro exitoso')),
       );
-      return;
-    }
-
-    DateTime? birthDate = DateTime.tryParse(
-      birthDateController.text.split('/').reversed.join('-'),
-    );
-
-    if (birthDate == null) {
+      Navigator.pushReplacementNamed(context, '/home');
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Fecha de nacimiento no válida')),
+        SnackBar(content: Text('Error: $e')),
       );
-      return;
     }
-
-    User newUser = User(
-      username: usernameController.text,
-      password: passwordController.text,
-      firstName: firstNameController.text,
-      lastName: lastNameController.text,
-      email: emailController.text,
-      phone: '$selectedCountryCode${phoneController.text}',
-      gender: selectedGender!,
-      birthDate: birthDate,
-    );
-
-    // Almacenar el nuevo usuario
-    registeredUsers.add(newUser);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Usuario registrado con éxito')),
-    );
-
-    // Redirigir a otra pantalla
-    context.goNamed(FormularioScreen.name);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Crear cuenta'),
+        title: const Text('Registro'),
       ),
-      body: SingleChildScrollView(
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Crear cuenta',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: usernameController,
-              decoration: const InputDecoration(
-                labelText: 'Nombre de usuario',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: firstNameController,
-              decoration: const InputDecoration(
-                labelText: 'Nombre',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: lastNameController,
-              decoration: const InputDecoration(
-                labelText: 'Apellido',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 10),
-            DropdownButtonFormField<String>(
-              value: selectedGender,
-              items: genders.map((String gender) {
-                return DropdownMenuItem<String>(
-                  value: gender,
-                  child: Text(gender),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  selectedGender = newValue;
-                });
-              },
-              decoration: const InputDecoration(
-                labelText: 'Género',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: birthDateController,
-              decoration: const InputDecoration(
-                labelText: 'Fecha de Nacimiento (dd/mm/aaaa)',
-                border: OutlineInputBorder(),
-              ),
-              onTap: () async {
-                FocusScope.of(context).requestFocus(FocusNode());
-                DateTime? pickedDate = await showDatePicker(
-                  context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime(1900),
-                  lastDate: DateTime.now(),
-                );
-                if (pickedDate != null) {
-                  setState(() {
-                    birthDateController.text = formatDate(pickedDate);
-                  });
-                }
-              },
-            ),
-            const SizedBox(height: 10),
             TextField(
               controller: emailController,
-              decoration: const InputDecoration(
-                labelText: 'Correo Electrónico',
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(labelText: 'Correo electrónico'),
             ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: DropdownButtonFormField<String>(
-                    value: selectedCountryCode,
-                    items: countryCodes.map((String code) {
-                      return DropdownMenuItem<String>(
-                        value: code,
-                        child: Text(code),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedCountryCode = newValue;
-                      });
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Código',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  flex: 5,
-                  child: TextField(
-                    controller: phoneController,
-                    decoration: const InputDecoration(
-                      labelText: 'Celular',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
             TextField(
               controller: passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Contraseña',
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(labelText: 'Contraseña'),
               obscureText: true,
             ),
-            const SizedBox(height: 10),
             TextField(
-              controller: confirmPasswordController,
-              decoration: const InputDecoration(
-                labelText: 'Confirmar Contraseña',
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
+              controller: firstNameController,
+              decoration: const InputDecoration(labelText: 'Nombre'),
             ),
-            const SizedBox(height: 20),
+            TextField(
+              controller: lastNameController,
+              decoration: const InputDecoration(labelText: 'Apellido'),
+            ),
+            TextField(
+              controller: phoneController,
+              decoration: const InputDecoration(labelText: 'Teléfono'),
+            ),
+            TextField(
+              controller: genderController,
+              decoration: const InputDecoration(labelText: 'Género'),
+            ),
             ElevatedButton(
               onPressed: _registerUser,
-              child: const Text('Crear cuenta'),
+              child: const Text('Registrar'),
             ),
           ],
         ),

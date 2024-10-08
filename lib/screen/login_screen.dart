@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:myapp/entities/user.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:myapp/screen/eligerol_screen.dart';
 import 'package:myapp/screen/home_screen.dart';
-import 'package:myapp/entities/globals.dart'; // Importa la lista global de usuarios
+import 'package:myapp/screen/registro_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   static const name = 'LoginScreen';
@@ -12,33 +14,40 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  TextEditingController usernameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Función para validar el inicio de sesión
-  void _loginUser() {
-    String enteredUsername = usernameController.text;
+  Future<void> _loginUser() async {
+    String enteredEmail = emailController.text; // Cambié el nombre de la variable
     String enteredPassword = passwordController.text;
 
-    // Buscar si el usuario existe y tiene la contraseña correcta
-    User? foundUser;
     try {
-      foundUser = registeredUsers.firstWhere(
-        (user) => user.username == enteredUsername && user.password == enteredPassword,
+      // Intenta iniciar sesión con Firebase Authentication
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: enteredEmail,
+        password: enteredPassword,
       );
-    } catch (e) {
-      foundUser = null; // Usuario no encontrado
-    }
 
-    if (foundUser != null) {
-      // Login exitoso
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('¡Bienvenido, ${foundUser.firstName}!')),
-      );
-      // Redirigir a la pantalla de inicio
-      context.goNamed(HomeScreen.name);
-    } else {
-      // Mostrar error si las credenciales no son correctas
+      // Recuperar información adicional del usuario de Firestore
+      DocumentSnapshot userDoc = await _firestore.collection('users').doc(userCredential.user!.uid).get();
+      Map<String, dynamic>? userData = userDoc.data() as Map<String, dynamic>?;
+
+      if (userData != null) {
+        // Si el inicio de sesión es exitoso y se recuperan los datos, redirigir a la pantalla de inicio
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('¡Bienvenido, ${userData['firstName']}!')),
+        );
+
+        // Pasar el usuario a la pantalla de inicio
+        context.goNamed(HomeScreen.name, extra: userCredential.user);
+      } else {
+        throw Exception('No se encontraron datos del usuario');
+      }
+    } catch (e) {
+      // Mostrar error si las credenciales no son correctas o si hay otro error
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Nombre de usuario o contraseña incorrectos')),
       );
@@ -63,9 +72,9 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 20),
             TextField(
-              controller: usernameController,
+              controller: emailController,
               decoration: const InputDecoration(
-                labelText: 'Nombre de usuario',
+                labelText: 'Nombre de usuario (correo electrónico)',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -87,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
             TextButton(
               onPressed: () {
                 // Navegar a la pantalla de registro si no tiene una cuenta
-                context.goNamed('RegisterScreen');
+                context.goNamed(EligeRol.name);
               },
               child: const Text('¿No tienes una cuenta? Regístrate aquí'),
             ),

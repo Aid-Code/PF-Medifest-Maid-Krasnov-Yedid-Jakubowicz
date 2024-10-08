@@ -1,4 +1,5 @@
-class User {
+class AppUser {
+  final String uid;
   final String username; // Requerido
   final String password; // Requerido
   final String firstName; // Requerido
@@ -8,7 +9,8 @@ class User {
   final String gender; // Requerido
   final DateTime birthDate; // Requerido
 
-  User({
+  AppUser({
+    required this.uid,
     required this.username,
     required this.password,
     required this.firstName,

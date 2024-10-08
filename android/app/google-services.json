@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "857766700318",
+    "project_id": "medifest-367e9",
+    "storage_bucket": "medifest-367e9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:857766700318:android:dd713129ec34c25ee0d50f",
+        "android_client_info": {
+          "package_name": "com.example.myapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCyBm10Ewfie4Cn69tW-_Oy-ImIO8Re78U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
